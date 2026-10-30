@@ -1,0 +1,81 @@
+{
+  "id": "subway_transfer",
+  "name": "서림역 B2 환승통로",
+  "keywords": [
+    { "id": "kw.cond.vending_red", "slot": "condition", "category": "light", "siteId": "subway_transfer", "label": "통로 자판기 조명이 붉게 바뀌었을 때" },
+    { "id": "kw.cond.after_last_train", "slot": "condition", "category": "time", "label": "막차가 끊긴 뒤" },
+    { "id": "kw.cond.board_off", "slot": "condition", "category": "light", "siteId": "subway_transfer", "label": "환승 안내 전광판이 꺼져 있을 때" },
+    { "id": "kw.cond.light_flicker", "slot": "condition", "category": "light", "label": "통로 형광등이 깜빡일 때" },
+    { "id": "kw.cond.train_arriving", "slot": "condition", "category": "sound", "siteId": "subway_transfer", "label": "열차가 진입할 때" },
+    { "id": "kw.cond.office_lit", "slot": "condition", "category": "light", "siteId": "subway_transfer", "label": "역무실 불이 켜져 있을 때" },
+    { "id": "kw.cond.rainy", "slot": "condition", "category": "time", "label": "비가 오는 날" },
+
+    { "id": "kw.anom.coin_drop", "slot": "anomaly", "category": "sound", "siteId": "subway_transfer", "label": "아무도 없는데 동전 떨어지는 소리가 들리면" },
+    { "id": "kw.anom.line_zero", "slot": "anomaly", "category": "sound", "siteId": "subway_transfer", "label": "'0호선' 환승 안내방송이 나오면" },
+    { "id": "kw.anom.extra_footstep", "slot": "anomaly", "category": "sound", "label": "내 발소리가 한 박자 늦게 하나 더 들리면" },
+    { "id": "kw.anom.phone_ring", "slot": "anomaly", "category": "sound", "label": "공중전화 벨이 울리면" },
+    { "id": "kw.anom.name_called", "slot": "anomaly", "category": "sound", "label": "누군가 내 이름을 부르면" },
+    { "id": "kw.anom.wet_smell", "slot": "anomaly", "category": "smell", "label": "젖은 흙냄새가 나면" },
+
+    { "id": "kw.resp.dont_look_vending", "slot": "response", "category": "gaze", "siteId": "subway_transfer", "label": "자판기를 쳐다보지 말 것" },
+    { "id": "kw.resp.back_away", "slot": "response", "category": "movement", "label": "등을 보이지 말고 뒷걸음질로 벗어날 것" },
+    { "id": "kw.resp.stand_still", "slot": "response", "category": "movement", "label": "방송이 끝날 때까지 제자리에서 기다릴 것" },
+    { "id": "kw.resp.dont_look_back", "slot": "response", "category": "gaze", "label": "뒤돌아보지 말고 걸음 속도를 유지할 것" },
+    { "id": "kw.resp.run", "slot": "response", "category": "movement", "label": "최대한 빨리 뛰어서 벗어날 것" },
+    { "id": "kw.resp.check_source", "slot": "response", "category": "gaze", "label": "소리 나는 쪽을 확인할 것" },
+    { "id": "kw.resp.follow_broadcast", "slot": "response", "category": "movement", "label": "안내방송이 가리키는 쪽으로 이동할 것" },
+    { "id": "kw.resp.report_staff", "slot": "response", "category": "touch", "label": "역무원에게 알릴 것" },
+    { "id": "kw.resp.close_eyes", "slot": "response", "category": "gaze", "label": "눈을 감고 열을 셀 것" }
+  ],
+  "anomalies": [
+    {
+      "id": "anom.red_vending",
+      "siteId": "subway_transfer",
+      "name": "붉은 자판기",
+      "conditions": ["kw.cond.vending_red"],
+      "anomalies": ["kw.anom.coin_drop"],
+      "correctResponses": ["kw.resp.dont_look_vending", "kw.resp.back_away"],
+      "clues": [
+        { "id": "clue.vending.1", "text": "[CCTV-B2-03 | 02:14:07] 환승통로 자판기 조명 색상 변화 감지 (백색 → 적색).", "revealsKeywords": ["kw.cond.vending_red"] },
+        { "id": "clue.vending.2", "text": "[미화원 진술서] \"자판기 쪽에서 동전 굴러가는 소리가 계속 났어요. 근데 거기 아무도 없었거든요.\"", "revealsKeywords": ["kw.anom.coin_drop"] },
+        { "id": "clue.vending.3", "text": "[CCTV-B2-03 | 02:16:41] 통행인 A, 자판기 정면 응시 약 4초. 이후 프레임에서 확인 불가.", "revealsKeywords": ["kw.resp.dont_look_vending", "kw.resp.check_source"] },
+        { "id": "clue.vending.4", "text": "[CCTV-B2-03 | 02:19:03] 통행인 B, 자판기를 마주 본 채 뒤로 걸어 통로 이탈. 이상 없음.", "revealsKeywords": ["kw.resp.back_away"] }
+      ]
+    },
+    {
+      "id": "anom.line_zero",
+      "siteId": "subway_transfer",
+      "name": "0호선 안내방송",
+      "conditions": ["kw.cond.after_last_train", "kw.cond.board_off"],
+      "anomalies": ["kw.anom.line_zero"],
+      "correctResponses": ["kw.resp.stand_still"],
+      "clues": [
+        { "id": "clue.zero.1", "text": "[운행 기록] 금일 막차 00:41 통과. 이후 B2 환승 안내 전광판 전원 차단 확인.", "revealsKeywords": ["kw.cond.after_last_train", "kw.cond.board_off"] },
+        { "id": "clue.zero.2", "text": "[녹음 파일 0047.wav 전사] \"...이번 역은 서림, 서림역입니다. 0호선으로 갈아타실 고객께서는...\"", "revealsKeywords": ["kw.anom.line_zero"] },
+        { "id": "clue.zero.3", "text": "[CCTV-B2-07 | 00:52:30] 통행인 C, 방송 직후 안내 화살표 방향으로 이동. B2-08 구간에서 미확인.", "revealsKeywords": ["kw.resp.follow_broadcast"] },
+        { "id": "clue.zero.4", "text": "[신고 접수 메모] \"방송 끝날 때까지 기둥 옆에 가만히 서 있었는데, 끝나니까 그냥 조용해졌어요.\"", "revealsKeywords": ["kw.resp.stand_still"] }
+      ]
+    },
+    {
+      "id": "anom.extra_footstep",
+      "siteId": "subway_transfer",
+      "name": "하나 더 들리는 발소리",
+      "conditions": ["kw.cond.light_flicker"],
+      "anomalies": ["kw.anom.extra_footstep"],
+      "correctResponses": ["kw.resp.dont_look_back"],
+      "clues": [
+        { "id": "clue.step.1", "text": "[시설 점검표] B2 환승통로 형광등 14번~22번 간헐적 점멸. 교체 요청 3회 반려.", "revealsKeywords": ["kw.cond.light_flicker"] },
+        { "id": "clue.step.2", "text": "[CCTV-B2-05 음성 분석] 보행자 1명 / 검출 발소리 2개. 두 번째 발소리 약 0.4초 지연.", "revealsKeywords": ["kw.anom.extra_footstep"] },
+        { "id": "clue.step.3", "text": "[CCTV-B2-05 | 01:33:12] 통행인 D, 뒤돌아봄. 조명 점멸 1회 후 통행인 D 미확인.", "revealsKeywords": ["kw.resp.check_source", "kw.resp.run"] },
+        { "id": "clue.step.4", "text": "[관리국 내부 메모] 동일 구간 무사 통과자 공통점: 일정한 보폭, 정면 주시.", "revealsKeywords": ["kw.resp.dont_look_back"] }
+      ]
+    }
+  ],
+  "noiseClues": [
+    { "id": "noise.1", "text": "[CCTV-B2-01 | 23:58:20] 열차 진입. 승객 하차 17명. 특이사항 없음.", "revealsKeywords": ["kw.cond.train_arriving"] },
+    { "id": "noise.2", "text": "[근무 일지] 야간 역무실 조명 상시 점등. 역무원 1명 상주.", "revealsKeywords": ["kw.cond.office_lit", "kw.resp.report_staff"] },
+    { "id": "noise.3", "text": "[민원 기록] \"B2 공중전화 아직도 있어요? 벨이 울리던데.\" — 해당 공중전화 2019년 철거.", "revealsKeywords": ["kw.anom.phone_ring"] },
+    { "id": "noise.4", "text": "[기상 기록] 강수 확률 70%. 출입구 3번 바닥 미끄럼 주의 표지 설치.", "revealsKeywords": ["kw.cond.rainy", "kw.anom.wet_smell"] },
+    { "id": "noise.5", "text": "[미화원 진술서 2] \"가끔 누가 이름 부르는 것 같은데, 다 환청이에요. 피곤해서 그래요.\"", "revealsKeywords": ["kw.anom.name_called", "kw.resp.close_eyes"] }
+  ]
+}
