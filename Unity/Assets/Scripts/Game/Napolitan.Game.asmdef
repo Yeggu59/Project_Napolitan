@@ -2,7 +2,8 @@
     "name": "Napolitan.Game",
     "rootNamespace": "Napolitan.Game",
     "references": [
-        "Napolitan.Core"
+        "Napolitan.Core",
+        "Unity.InputSystem"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
