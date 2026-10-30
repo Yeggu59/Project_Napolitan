@@ -31,6 +31,16 @@ export interface AnomalyDef {
   clues: Clue[];
 }
 
+/** 구역 하나의 데이터 (src/data/*.json) */
+export interface SiteData {
+  id: string;
+  name: string;
+  keywords: Keyword[];
+  anomalies: AnomalyDef[];
+  /** 이상현상과 무관한 일상 기록 — 오답 키워드를 해금하는 노이즈 */
+  noiseClues: Clue[];
+}
+
 /** 플레이어가 조립한 수칙 */
 export interface Rule {
   condition: string[];
