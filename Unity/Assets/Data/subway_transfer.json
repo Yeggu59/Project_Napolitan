@@ -9,6 +9,7 @@
     { "id": "kw.cond.train_arriving", "slot": "condition", "category": "sound", "siteId": "subway_transfer", "label": "열차가 진입할 때" },
     { "id": "kw.cond.office_lit", "slot": "condition", "category": "light", "siteId": "subway_transfer", "label": "역무실 불이 켜져 있을 때" },
     { "id": "kw.cond.rainy", "slot": "condition", "category": "time", "label": "비가 오는 날" },
+    { "id": "kw.cond.red_hand", "slot": "condition", "category": "touch", "label": "손등에 붉은 자국이 생겼을 때" },
 
     { "id": "kw.anom.coin_drop", "slot": "anomaly", "category": "sound", "siteId": "subway_transfer", "label": "아무도 없는데 동전 떨어지는 소리가 들리면" },
     { "id": "kw.anom.line_zero", "slot": "anomaly", "category": "sound", "siteId": "subway_transfer", "label": "'0호선' 환승 안내방송이 나오면" },
@@ -25,7 +26,9 @@
     { "id": "kw.resp.check_source", "slot": "response", "category": "gaze", "label": "소리 나는 쪽을 확인할 것" },
     { "id": "kw.resp.follow_broadcast", "slot": "response", "category": "movement", "label": "안내방송이 가리키는 쪽으로 이동할 것" },
     { "id": "kw.resp.report_staff", "slot": "response", "category": "touch", "label": "역무원에게 알릴 것" },
-    { "id": "kw.resp.close_eyes", "slot": "response", "category": "gaze", "label": "눈을 감고 열을 셀 것" }
+    { "id": "kw.resp.close_eyes", "slot": "response", "category": "gaze", "label": "눈을 감고 열을 셀 것" },
+    { "id": "kw.resp.stare", "slot": "response", "category": "gaze", "label": "자판기를 계속 지켜볼 것" },
+    { "id": "kw.resp.approach", "slot": "response", "category": "movement", "siteId": "subway_transfer", "label": "자판기에 다가가 확인할 것" }
   ],
   "anomalies": [
     {
@@ -40,6 +43,29 @@
         { "id": "clue.vending.2", "text": "[미화원 진술서] \"자판기 쪽에서 동전 굴러가는 소리가 계속 났어요. 근데 거기 아무도 없었거든요.\"", "revealsKeywords": ["kw.anom.coin_drop"] },
         { "id": "clue.vending.3", "text": "[CCTV-B2-03 | 02:16:41] 통행인 A, 자판기 정면 응시 약 4초. 이후 프레임에서 확인 불가.", "revealsKeywords": ["kw.resp.dont_look_vending", "kw.resp.check_source"] },
         { "id": "clue.vending.4", "text": "[CCTV-B2-03 | 02:19:03] 통행인 B, 자판기를 마주 본 채 뒤로 걸어 통로 이탈. 이상 없음.", "revealsKeywords": ["kw.resp.back_away"] }
+      ],
+      "variants": [
+        {
+          "id": "v1",
+          "weight": 1,
+          "requireMarksToAwaken": [],
+          "unlockOnOmen": ["kw.cond.vending_red"],
+          "unlockOnActive": ["kw.anom.coin_drop"],
+          "outcomes": [
+            { "action": "kw.resp.close_eyes", "requireMarks": ["mark.red_hand"], "forbidMarks": [], "result": { "type": "resolve", "unlockKeywords": ["kw.resp.close_eyes"] } },
+            { "action": "*", "requireMarks": ["mark.red_hand"], "forbidMarks": [], "result": { "type": "fatal", "unlockKeywords": ["kw.cond.red_hand"] } },
+            { "action": "kw.resp.back_away", "requireMarks": [], "forbidMarks": [], "result": { "type": "resolve", "unlockKeywords": ["kw.resp.back_away"] } },
+            { "action": "kw.resp.dont_look_vending", "requireMarks": [], "forbidMarks": [], "result": { "type": "resolve", "unlockKeywords": ["kw.resp.dont_look_vending"] } },
+            { "action": "kw.resp.stare", "requireMarks": [], "forbidMarks": [], "result": { "type": "immediateHarm", "impairment": "impair.vision_red", "unlockKeywords": ["kw.resp.stare"] } },
+            { "action": "timeout", "requireMarks": [], "forbidMarks": [], "result": { "type": "immediateHarm", "impairment": "impair.vision_red", "unlockKeywords": [] } },
+            { "action": "kw.resp.approach", "requireMarks": [], "forbidMarks": [], "result": { "type": "applyMark", "mark": "mark.red_hand", "unlockKeywords": ["kw.resp.approach"] } },
+            { "action": "kw.resp.close_eyes", "requireMarks": [], "forbidMarks": [], "result": { "type": "nothing", "unlockKeywords": [] } }
+          ],
+          "answers": [
+            { "id": "A", "hiddenConditions": [], "conditions": ["kw.cond.vending_red"], "anomalies": ["kw.anom.coin_drop"], "correctResponses": ["kw.resp.back_away", "kw.resp.dont_look_vending"], "hint": null },
+            { "id": "B", "hiddenConditions": ["kw.cond.red_hand"], "conditions": ["kw.cond.vending_red"], "anomalies": ["kw.anom.coin_drop"], "correctResponses": ["kw.resp.close_eyes"], "hint": "같은 대응이 통하지 않은 순간이 있었다. 그때 몸에 무엇이 남아 있었는지 떠올려 볼 것." }
+          ]
+        }
       ]
     },
     {
@@ -77,5 +103,8 @@
     { "id": "noise.3", "text": "[민원 기록] \"B2 공중전화 아직도 있어요? 벨이 울리던데.\" — 해당 공중전화 2019년 철거.", "revealsKeywords": ["kw.anom.phone_ring"] },
     { "id": "noise.4", "text": "[기상 기록] 강수 확률 70%. 출입구 3번 바닥 미끄럼 주의 표지 설치.", "revealsKeywords": ["kw.cond.rainy", "kw.anom.wet_smell"] },
     { "id": "noise.5", "text": "[미화원 진술서 2] \"가끔 누가 이름 부르는 것 같은데, 다 환청이에요. 피곤해서 그래요.\"", "revealsKeywords": ["kw.anom.name_called", "kw.resp.close_eyes"] }
+  ],
+  "marks": [
+    { "id": "mark.red_hand", "label": "손등에 붉은 자국" }
   ]
 }

@@ -18,6 +18,9 @@ namespace Napolitan.Core
             PastManualFeedback = PastManualFeedback.MarkWrong,
             SubmissionLimitExtra = 2,
             Score = new ScoreTable(10, 3, -2),
+            HiddenConditionPolicy = HiddenConditionPolicy.AcceptAsBaseBranch,
+            ShowHiddenConditionHint = true,
+            MaxLives = 0, // 무제한
         };
 
         public static readonly RankConfig AssistantManager = new RankConfig
@@ -31,6 +34,9 @@ namespace Napolitan.Core
             PastManualFeedback = PastManualFeedback.CountOnly,
             SubmissionLimitExtra = 1,
             Score = new ScoreTable(10, 3, -4),
+            HiddenConditionPolicy = HiddenConditionPolicy.AcceptAsBaseBranch,
+            ShowHiddenConditionHint = false,
+            MaxLives = 3,
         };
 
         public static readonly RankConfig GeneralManager = new RankConfig
@@ -44,6 +50,9 @@ namespace Napolitan.Core
             PastManualFeedback = PastManualFeedback.None,
             SubmissionLimitExtra = 0,
             Score = new ScoreTable(10, 0, -6),
+            HiddenConditionPolicy = HiddenConditionPolicy.RejectAsWrong,
+            ShowHiddenConditionHint = false,
+            MaxLives = 1,
         };
 
         public static readonly RankConfig[] All = { Intern, AssistantManager, GeneralManager };

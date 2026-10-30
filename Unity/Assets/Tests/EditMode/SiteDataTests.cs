@@ -25,8 +25,13 @@ namespace Napolitan.Core.Tests
             site = SiteLoader.Parse(json);
             byId = site.Keywords.ToDictionary(k => k.Id);
             allClues = site.Anomalies.SelectMany(a => a.Clues).Concat(site.NoiseClues).ToList();
-            revealed = new HashSet<string>(allClues.SelectMany(c => c.RevealsKeywords));
+            // 단서 + 현장에서 겪어서 해금되는 키워드 (변형의 전조·현상·결과)
+            revealed = new HashSet<string>(allClues.SelectMany(c => c.RevealsKeywords)
+                .Concat(site.Anomalies.SelectMany(a => a.Variants).SelectMany(VariantUnlocks)));
         }
+
+        static IEnumerable<string> VariantUnlocks(AnomalyVariant v) =>
+            v.UnlockOnOmen.Concat(v.UnlockOnActive).Concat(v.Outcomes.SelectMany(o => o.Result.UnlockKeywords));
 
         void ExpectSlot(IEnumerable<string> ids, Slot slot)
         {
@@ -86,6 +91,42 @@ namespace Napolitan.Core.Tests
                 var own = new HashSet<string>(a.Clues.SelectMany(c => c.RevealsKeywords));
                 foreach (var id in a.Conditions.Concat(a.Anomalies).Concat(a.CorrectResponses))
                     Assert.That(own.Contains(id), a.Id + " → " + id);
+            }
+        }
+
+        [Test]
+        public void 변형_정답은_자기_단서나_겪은_결과로_해금됨_억까방지()
+        {
+            foreach (var a in site.Anomalies)
+            foreach (var v in a.Variants)
+            {
+                var own = new HashSet<string>(a.Clues.SelectMany(c => c.RevealsKeywords).Concat(VariantUnlocks(v)));
+                foreach (var b in v.Answers)
+                foreach (var id in b.HiddenConditions.Concat(b.Conditions).Concat(b.Anomalies).Concat(b.CorrectResponses))
+                    Assert.That(own.Contains(id), $"{a.Id}/{v.Id}/{b.Id} → {id}");
+            }
+        }
+
+        [Test]
+        public void 변형이_참조하는_키워드_표식이_존재하고_칸이_맞음()
+        {
+            var markIds = new HashSet<string>(site.Marks.Select(m => m.Id));
+            foreach (var v in site.Anomalies.SelectMany(a => a.Variants))
+            {
+                foreach (var b in v.Answers)
+                {
+                    ExpectSlot(b.HiddenConditions.Concat(b.Conditions), Slot.Condition);
+                    ExpectSlot(b.Anomalies, Slot.Anomaly);
+                    ExpectSlot(b.CorrectResponses, Slot.Response);
+                }
+                foreach (var o in v.Outcomes)
+                {
+                    if (o.Action != PlayerActions.Any && o.Action != PlayerActions.Timeout) ExpectSlot(new[] { o.Action }, Slot.Response);
+                    foreach (var m in o.RequireMarks.Concat(o.ForbidMarks).Concat(v.RequireMarksToAwaken)) Assert.That(markIds.Contains(m), m);
+                    if (o.Result.Type == OutcomeType.ApplyMark) Assert.That(markIds.Contains(o.Result.Mark), o.Result.Mark);
+                    if (o.Result.Type == OutcomeType.ImmediateHarm) Assert.That(o.Result.Impairment, Is.Not.Empty);
+                    foreach (var k in o.Result.UnlockKeywords) Assert.That(byId.ContainsKey(k), k);
+                }
             }
         }
 
