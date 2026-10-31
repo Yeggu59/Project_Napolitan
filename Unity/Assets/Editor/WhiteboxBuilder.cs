@@ -3,16 +3,22 @@
 // 배치모드: Unity -batchmode -projectPath Unity -executeMethod WhiteboxBuilder.Run -quit
 // 손으로 다듬은 뒤에는 다시 실행하지 말 것 (덮어씀) — 이후 수정은 ProBuilder로
 
+using Napolitan.Game.Anomaly;
+using Napolitan.Game.Dispatch;
 using Napolitan.Game.Interaction;
 using Napolitan.Game.Player;
+using Napolitan.Game.Presentation;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 
 public static class WhiteboxBuilder
 {
     const string ScenePath = "Assets/Scenes/SeorimB2.unity";
+    const string SitePath = "Assets/Data/subway_transfer.json";
+    const string PanelMaterialPath = "Assets/Materials/VendingPanel.mat";
     const float Width = 4f, Height = 3f, Length = 40f, Wall = 0.2f;
 
     [MenuItem("Napolitan/Setup/환승통로 화이트박스")]
@@ -34,7 +40,7 @@ public static class WhiteboxBuilder
         Box("Wall_Start", whitebox, new Vector3(0f, Height / 2f, -Wall / 2f), new Vector3(Width + Wall * 2f, Height, Wall));
         Box("Wall_End", whitebox, new Vector3(0f, Height / 2f, Length + Wall / 2f), new Vector3(Width + Wall * 2f, Height, Wall));
 
-        // 자판기 자리 (나중에 상태머신 연결). 지금은 조사 테스트용 단서만
+        // 붉은 자판기: 상태머신·행동 판정·연출은 WireDispatch에서 연결
         var vending = Box("VendingMachine", whitebox, new Vector3(Width / 2f - 0.45f, 1f, 20f), new Vector3(0.8f, 2f, 0.9f));
         AddClueSource(vending, "자판기", "clue.vending.1");
 
@@ -48,7 +54,8 @@ public static class WhiteboxBuilder
         var vanSpawn = new GameObject("VanSpawn").transform;
         vanSpawn.position = new Vector3(0f, 0f, 2f);
 
-        CreatePlayer(vanSpawn.position);
+        var player = CreatePlayer(vanSpawn.position);
+        WireDispatch(whitebox, vending, vanSpawn, player);
 
         EditorSceneManager.SaveScene(scene);
         Debug.Log("[WhiteboxBuilder] 환승통로 화이트박스 생성 완료");
@@ -90,7 +97,7 @@ public static class WhiteboxBuilder
         light.shadows = LightShadows.Soft;
     }
 
-    static void CreatePlayer(Vector3 position)
+    static GameObject CreatePlayer(Vector3 position)
     {
         var player = new GameObject("Player");
         player.tag = "Player";
@@ -120,5 +127,109 @@ public static class WhiteboxBuilder
         inspectorSo.ApplyModifiedPropertiesWithoutUndo();
 
         player.AddComponent<InspectHud>();
+        player.AddComponent<Eyes>();
+        camera.GetUniversalAdditionalCameraData().renderPostProcessing = true; // 붉은 시야 비네팅
+        return player;
+    }
+
+    /// <summary>파견 매니저 + 자판기 상태머신·행동 판정·연출 연결</summary>
+    static void WireDispatch(Transform whitebox, GameObject vending, Transform vanSpawn, GameObject player)
+    {
+        var vendingPos = vending.transform.position;
+        var cameraRoot = player.transform.Find("CameraRoot");
+
+        // 전면 패널 (통로 쪽 = -x). 자판기는 비균등 스케일이라 자식으로 두지 않음
+        // 발광 머티리얼은 에셋으로 둬야 빌드에서 _EMISSION 변형이 남는다
+        var panel = GameObject.CreatePrimitive(PrimitiveType.Quad);
+        panel.name = "VendingPanel";
+        Object.DestroyImmediate(panel.GetComponent<Collider>());
+        panel.transform.SetParent(whitebox);
+        panel.transform.SetPositionAndRotation(new Vector3(vendingPos.x - 0.41f, 1.2f, vendingPos.z), Quaternion.Euler(0f, 90f, 0f));
+        panel.transform.localScale = new Vector3(0.7f, 1.2f, 1f);
+        panel.GetComponent<MeshRenderer>().sharedMaterial = PanelMaterial();
+
+        var glowGo = new GameObject("VendingGlow");
+        glowGo.transform.SetParent(whitebox);
+        glowGo.transform.position = new Vector3(vendingPos.x - 0.7f, 1.4f, vendingPos.z);
+        var glow = glowGo.AddComponent<Light>();
+        glow.type = LightType.Point;
+        glow.range = 4f;
+        glow.intensity = 1.5f;
+
+        var coin = vending.AddComponent<AudioSource>();
+        coin.playOnAwake = false;
+        coin.spatialBlend = 1f;
+        coin.minDistance = 1f;
+        coin.maxDistance = 25f;
+
+        var dispatchGo = new GameObject("Dispatch");
+        var dispatch = dispatchGo.AddComponent<DispatchManager>();
+        var hud = dispatchGo.AddComponent<DispatchDebugHud>();
+        var harm = player.AddComponent<HarmPresenter>();
+        var detector = vending.AddComponent<ResponseDetector>();
+        var anomaly = vending.AddComponent<AnomalyController>();
+
+        Set(dispatch, so =>
+        {
+            so.FindProperty("siteJson").objectReferenceValue = AssetDatabase.LoadAssetAtPath<TextAsset>(SitePath);
+            so.FindProperty("vanSpawn").objectReferenceValue = vanSpawn;
+            so.FindProperty("player").objectReferenceValue = player.GetComponent<FirstPersonController>();
+            so.FindProperty("inspector").objectReferenceValue = player.GetComponent<Inspector>();
+            so.FindProperty("harm").objectReferenceValue = harm;
+        });
+        Set(harm, so =>
+        {
+            so.FindProperty("dispatch").objectReferenceValue = dispatch;
+            so.FindProperty("eyes").objectReferenceValue = player.GetComponent<Eyes>();
+            so.FindProperty("viewCamera").objectReferenceValue = cameraRoot.GetComponent<Camera>();
+        });
+        Set(detector, so =>
+        {
+            so.FindProperty("dispatch").objectReferenceValue = dispatch;
+            so.FindProperty("player").objectReferenceValue = player.GetComponent<FirstPersonController>();
+            so.FindProperty("eyes").objectReferenceValue = player.GetComponent<Eyes>();
+            so.FindProperty("viewCamera").objectReferenceValue = cameraRoot;
+            so.FindProperty("gazeTarget").objectReferenceValue = vending.transform;
+        });
+        Set(anomaly, so =>
+        {
+            so.FindProperty("dispatch").objectReferenceValue = dispatch;
+            so.FindProperty("player").objectReferenceValue = player.transform;
+            so.FindProperty("detector").objectReferenceValue = detector;
+            // 자판기 앞뒤 12m: 붉은빛을 보고도 계속 걸어오면 현상이 시작될 즈음 자판기 바로 앞 (다가감)
+            so.FindProperty("zoneCenter").vector3Value = new Vector3(0f, Height / 2f, vendingPos.z);
+            so.FindProperty("zoneSize").vector3Value = new Vector3(Width, Height, 24f);
+            so.FindProperty("omenSeconds").floatValue = 2f;
+            so.FindProperty("glow").objectReferenceValue = glow;
+            so.FindProperty("panel").objectReferenceValue = panel.GetComponent<MeshRenderer>();
+            so.FindProperty("coinSource").objectReferenceValue = coin;
+        });
+        Set(hud, so =>
+        {
+            so.FindProperty("dispatch").objectReferenceValue = dispatch;
+            so.FindProperty("anomaly").objectReferenceValue = anomaly;
+            so.FindProperty("detector").objectReferenceValue = detector;
+        });
+    }
+
+    static void Set(Object target, System.Action<SerializedObject> edit)
+    {
+        var so = new SerializedObject(target);
+        edit(so);
+        so.ApplyModifiedPropertiesWithoutUndo();
+    }
+
+    static Material PanelMaterial()
+    {
+        var material = AssetDatabase.LoadAssetAtPath<Material>(PanelMaterialPath);
+        if (material != null) return material;
+        if (!AssetDatabase.IsValidFolder("Assets/Materials")) AssetDatabase.CreateFolder("Assets", "Materials");
+        material = new Material(Shader.Find("Universal Render Pipeline/Lit"));
+        material.SetColor("_BaseColor", new Color(0.5f, 0.55f, 0.6f));
+        material.EnableKeyword("_EMISSION");
+        material.globalIlluminationFlags = MaterialGlobalIlluminationFlags.RealtimeEmissive;
+        material.SetColor("_EmissionColor", new Color(1.2f, 1.3f, 1.5f));
+        AssetDatabase.CreateAsset(material, PanelMaterialPath);
+        return material;
     }
 }
