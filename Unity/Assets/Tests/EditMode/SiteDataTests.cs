@@ -121,7 +121,7 @@ namespace Napolitan.Core.Tests
                 }
                 foreach (var o in v.Outcomes)
                 {
-                    if (o.Action != PlayerActions.Any && o.Action != PlayerActions.Timeout) ExpectSlot(new[] { o.Action }, Slot.Response);
+                    if (o.Action != PlayerActions.Any && o.Action != PlayerActions.Timeout && o.Action != PlayerActions.TurnAway) ExpectSlot(new[] { o.Action }, Slot.Response);
                     foreach (var m in o.RequireMarks.Concat(o.ForbidMarks).Concat(v.RequireMarksToAwaken)) Assert.That(markIds.Contains(m), m);
                     if (o.Result.Type == OutcomeType.ApplyMark) Assert.That(markIds.Contains(o.Result.Mark), o.Result.Mark);
                     if (o.Result.Type == OutcomeType.ImmediateHarm) Assert.That(o.Result.Impairment, Is.Not.Empty);

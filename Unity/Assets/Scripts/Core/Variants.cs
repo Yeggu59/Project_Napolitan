@@ -34,6 +34,8 @@ namespace Napolitan.Core
     {
         /// <summary>Active 후 일정 시간 아무 대응도 안 함</summary>
         public const string Timeout = "timeout";
+        /// <summary>등을 보이고 멀어짐 — "등을 보이지 말고 뒷걸음질"의 오답</summary>
+        public const string TurnAway = "turn_away";
         /// <summary>결과 표에서 "아무 행동"</summary>
         public const string Any = "*";
     }

@@ -38,6 +38,7 @@ namespace Napolitan.Game.Anomaly
         float omenTimer;
 
         public AnomalyState State => runtime?.State ?? AnomalyState.Dormant;
+        public bool InZone => inZone;
 
         Bounds Zone => new Bounds(zoneCenter, zoneSize);
 

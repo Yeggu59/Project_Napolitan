@@ -57,6 +57,7 @@
             { "action": "kw.resp.back_away", "requireMarks": [], "forbidMarks": [], "result": { "type": "resolve", "unlockKeywords": ["kw.resp.back_away"] } },
             { "action": "kw.resp.dont_look_vending", "requireMarks": [], "forbidMarks": [], "result": { "type": "resolve", "unlockKeywords": ["kw.resp.dont_look_vending"] } },
             { "action": "kw.resp.stare", "requireMarks": [], "forbidMarks": [], "result": { "type": "immediateHarm", "impairment": "impair.vision_red", "unlockKeywords": ["kw.resp.stare"] } },
+            { "action": "turn_away", "requireMarks": [], "forbidMarks": [], "result": { "type": "immediateHarm", "impairment": "impair.vision_red", "unlockKeywords": [] } },
             { "action": "timeout", "requireMarks": [], "forbidMarks": [], "result": { "type": "immediateHarm", "impairment": "impair.vision_red", "unlockKeywords": [] } },
             { "action": "kw.resp.approach", "requireMarks": [], "forbidMarks": [], "result": { "type": "applyMark", "mark": "mark.red_hand", "unlockKeywords": ["kw.resp.approach"] } },
             { "action": "kw.resp.close_eyes", "requireMarks": [], "forbidMarks": [], "result": { "type": "nothing", "unlockKeywords": [] } }

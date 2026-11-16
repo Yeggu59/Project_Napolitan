@@ -196,9 +196,9 @@ public static class WhiteboxBuilder
             so.FindProperty("dispatch").objectReferenceValue = dispatch;
             so.FindProperty("player").objectReferenceValue = player.transform;
             so.FindProperty("detector").objectReferenceValue = detector;
-            // 자판기 앞뒤 12m: 붉은빛을 보고도 계속 걸어오면 현상이 시작될 즈음 자판기 바로 앞 (다가감)
+            // 자판기 앞뒤 6m: 재발동하려면 6m 밖으로 나갔다 와야 함 (12m는 통로 시작까지 돌아가야 해서 너무 멂 — 2026-11-17 유저 플레이)
             so.FindProperty("zoneCenter").vector3Value = new Vector3(0f, Height / 2f, vendingPos.z);
-            so.FindProperty("zoneSize").vector3Value = new Vector3(Width, Height, 24f);
+            so.FindProperty("zoneSize").vector3Value = new Vector3(Width, Height, 12f);
             so.FindProperty("omenSeconds").floatValue = 2f;
             so.FindProperty("glow").objectReferenceValue = glow;
             so.FindProperty("panel").objectReferenceValue = panel.GetComponent<MeshRenderer>();

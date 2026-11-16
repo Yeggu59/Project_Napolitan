@@ -69,6 +69,8 @@ namespace Napolitan.Core.Tests
         [TestCase(BackAway)]
         [TestCase(LookAway)]
         [TestCase(Stare)]
+        [TestCase(Approach)]
+        [TestCase(PlayerActions.TurnAway)]
         public void H3_02_표식있음_눈감기외_전부_즉사(string action)
         {
             var s = NewSession();
@@ -86,6 +88,7 @@ namespace Napolitan.Core.Tests
 
         [TestCase(Stare)]
         [TestCase(PlayerActions.Timeout)]
+        [TestCase(PlayerActions.TurnAway)]
         public void H3_04_표식없음_응시_무반응_붉은시야(string action)
         {
             var s = NewSession();
@@ -118,7 +121,7 @@ namespace Napolitan.Core.Tests
         [Test]
         public void H3_07_같은상태_같은행동은_항상_같은결과()
         {
-            foreach (var action in new[] { CloseEyes, BackAway, LookAway, Stare, Approach, PlayerActions.Timeout })
+            foreach (var action in new[] { CloseEyes, BackAway, LookAway, Stare, Approach, PlayerActions.Timeout, PlayerActions.TurnAway })
             foreach (var marked in new[] { false, true })
             {
                 var results = Enumerable.Range(0, 5).Select(seed =>
