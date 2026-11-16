@@ -51,16 +51,18 @@
           "requireMarksToAwaken": [],
           "unlockOnOmen": ["kw.cond.vending_red"],
           "unlockOnActive": ["kw.anom.coin_drop"],
+          "omenRecord": "환승통로 자판기 전면 조명 색상 변화 관측 (백색 → 적색).",
+          "activeRecord": "주변 인원 없음. 자판기 방향에서 동전 낙하음 반복 청취.",
           "outcomes": [
-            { "action": "kw.resp.close_eyes", "requireMarks": ["mark.red_hand"], "forbidMarks": [], "result": { "type": "resolve", "unlockKeywords": ["kw.resp.close_eyes"] } },
-            { "action": "*", "requireMarks": ["mark.red_hand"], "forbidMarks": [], "result": { "type": "fatal", "unlockKeywords": ["kw.cond.red_hand"] } },
-            { "action": "kw.resp.back_away", "requireMarks": [], "forbidMarks": [], "result": { "type": "resolve", "unlockKeywords": ["kw.resp.back_away"] } },
-            { "action": "kw.resp.dont_look_vending", "requireMarks": [], "forbidMarks": [], "result": { "type": "resolve", "unlockKeywords": ["kw.resp.dont_look_vending"] } },
-            { "action": "kw.resp.stare", "requireMarks": [], "forbidMarks": [], "result": { "type": "immediateHarm", "impairment": "impair.vision_red", "unlockKeywords": ["kw.resp.stare"] } },
-            { "action": "turn_away", "requireMarks": [], "forbidMarks": [], "result": { "type": "immediateHarm", "impairment": "impair.vision_red", "unlockKeywords": [] } },
-            { "action": "timeout", "requireMarks": [], "forbidMarks": [], "result": { "type": "immediateHarm", "impairment": "impair.vision_red", "unlockKeywords": [] } },
-            { "action": "kw.resp.approach", "requireMarks": [], "forbidMarks": [], "result": { "type": "applyMark", "mark": "mark.red_hand", "unlockKeywords": ["kw.resp.approach"] } },
-            { "action": "kw.resp.close_eyes", "requireMarks": [], "forbidMarks": [], "result": { "type": "nothing", "unlockKeywords": [] } }
+            { "action": "kw.resp.close_eyes", "requireMarks": ["mark.red_hand"], "forbidMarks": [], "result": { "type": "resolve", "unlockKeywords": ["kw.resp.close_eyes"], "record": "눈을 감고 열을 셈. 눈을 떴을 때 동전 소리 멎음, 자판기 조명 정상." } },
+            { "action": "*", "requireMarks": ["mark.red_hand"], "forbidMarks": [], "result": { "type": "fatal", "unlockKeywords": ["kw.cond.red_hand"], "record": "기록 공백. 밴 차량 내부에서 의식 회복. 직전 상황 기억나지 않음." } },
+            { "action": "kw.resp.back_away", "requireMarks": [], "forbidMarks": [], "result": { "type": "resolve", "unlockKeywords": ["kw.resp.back_away"], "record": "자판기를 마주 본 채 후퇴. 동전 소리 멎음, 자판기 조명 정상." } },
+            { "action": "kw.resp.dont_look_vending", "requireMarks": [], "forbidMarks": [], "result": { "type": "resolve", "unlockKeywords": ["kw.resp.dont_look_vending"], "record": "자판기를 보지 않고 제자리 대기. 동전 소리 멎음." } },
+            { "action": "kw.resp.stare", "requireMarks": [], "forbidMarks": [], "result": { "type": "immediateHarm", "impairment": "impair.vision_red", "unlockKeywords": ["kw.resp.stare"], "record": "자판기를 계속 주시함. 이후 시야가 붉게 물들며 좁아짐." } },
+            { "action": "turn_away", "requireMarks": [], "forbidMarks": [], "result": { "type": "immediateHarm", "impairment": "impair.vision_red", "unlockKeywords": [], "record": "자판기에 등을 보이고 이탈 시도. 이후 시야가 붉게 물들며 좁아짐." } },
+            { "action": "timeout", "requireMarks": [], "forbidMarks": [], "result": { "type": "immediateHarm", "impairment": "impair.vision_red", "unlockKeywords": [], "record": "별다른 대응 없이 시간 경과. 이후 시야가 붉게 물들며 좁아짐." } },
+            { "action": "kw.resp.approach", "requireMarks": [], "forbidMarks": [], "result": { "type": "applyMark", "mark": "mark.red_hand", "unlockKeywords": ["kw.resp.approach"], "record": "자판기에 접근해 확인. 특이사항 없음. 동전 소리 멎음." } },
+            { "action": "kw.resp.close_eyes", "requireMarks": [], "forbidMarks": [], "result": { "type": "nothing", "unlockKeywords": [], "record": "눈을 감고 열을 셈. 눈을 떴을 때 동전 소리 계속됨." } }
           ],
           "answers": [
             { "id": "A", "hiddenConditions": [], "conditions": ["kw.cond.vending_red"], "anomalies": ["kw.anom.coin_drop"], "correctResponses": ["kw.resp.back_away", "kw.resp.dont_look_vending"], "hint": null },

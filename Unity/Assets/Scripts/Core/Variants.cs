@@ -50,6 +50,8 @@ namespace Napolitan.Core
         public string Mark;
         /// <summary>이 결과를 겪으면 해금되는 키워드</summary>
         public List<string> UnlockKeywords = new List<string>();
+        /// <summary>저널 현장 기록 문장 (겪은 것). 표식처럼 숨은 결과는 드러내지 않게 쓸 것. 없으면 기록 안 함</summary>
+        public string Record;
 
         public static OutcomeResult Nothing() => new OutcomeResult { Type = OutcomeType.Nothing };
     }
@@ -98,6 +100,9 @@ namespace Napolitan.Core
         public List<string> UnlockOnOmen = new List<string>();
         /// <summary>현상을 겪으면 해금 (예: 동전 소리 → 이상현상 키워드)</summary>
         public List<string> UnlockOnActive = new List<string>();
+        /// <summary>전조·현상을 겪었을 때 저널 현장 기록 문장</summary>
+        public string OmenRecord;
+        public string ActiveRecord;
         public List<OutcomeRule> Outcomes = new List<OutcomeRule>();
         public List<AnswerBranch> Answers = new List<AnswerBranch>();
 

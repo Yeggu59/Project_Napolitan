@@ -32,7 +32,7 @@ namespace Napolitan.Game.Dispatch
 
         void OnGUI()
         {
-            if (!visible || dispatch.Session == null) return;
+            if (!visible || dispatch.Session == null || dispatch.Player.InputLocked) return; // 저널·사망 연출 화면을 가리지 않게
             var s = dispatch.Session;
             var p = s.Player;
             style ??= new GUIStyle(GUI.skin.label) { fontSize = 13 };

@@ -4,6 +4,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Napolitan.Game.Player;
 
 namespace Napolitan.Game.Interaction
 {
@@ -21,9 +22,12 @@ namespace Napolitan.Game.Interaction
         /// <summary>지금 조준 중인 대상 (없으면 null)</summary>
         public IInspectable Current { get; private set; }
 
+        FirstPersonController controller;
+
         void Awake()
         {
             inspect = new InputAction("Inspect", InputActionType.Button, "<Keyboard>/e");
+            controller = GetComponent<FirstPersonController>();
         }
 
         void OnEnable() => inspect.Enable();
@@ -32,7 +36,8 @@ namespace Napolitan.Game.Interaction
 
         void Update()
         {
-            Current = FindTarget();
+            // 저널·사망 연출·일시정지 중엔 조사 안 함
+            Current = controller == null || controller.HasControl ? FindTarget() : null;
             if (Current == null || !inspect.WasPressedThisFrame()) return;
 
             var clues = Current.Inspect();

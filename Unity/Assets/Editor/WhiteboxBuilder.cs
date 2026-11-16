@@ -8,17 +8,22 @@ using Napolitan.Game.Dispatch;
 using Napolitan.Game.Interaction;
 using Napolitan.Game.Player;
 using Napolitan.Game.Presentation;
+using Napolitan.Game.UI;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.UIElements;
 
 public static class WhiteboxBuilder
 {
     const string ScenePath = "Assets/Scenes/SeorimB2.unity";
     const string SitePath = "Assets/Data/subway_transfer.json";
     const string PanelMaterialPath = "Assets/Materials/VendingPanel.mat";
+    const string PanelSettingsPath = "Assets/UI/GamePanelSettings.asset";
+    const string ThemePath = "Assets/UI/GameTheme.tss";
+    const string JournalStylePath = "Assets/UI/Journal.uss";
     const float Width = 4f, Height = 3f, Length = 40f, Wall = 0.2f;
 
     [MenuItem("Napolitan/Setup/환승통로 화이트박스")]
@@ -210,6 +215,36 @@ public static class WhiteboxBuilder
             so.FindProperty("anomaly").objectReferenceValue = anomaly;
             so.FindProperty("detector").objectReferenceValue = detector;
         });
+
+        CreateUi(dispatch);
+    }
+
+    /// <summary>UI Toolkit 화면 (저널). 패널 설정은 에셋으로 (1920×1080 기준 비율 맞춤)</summary>
+    static void CreateUi(DispatchManager dispatch)
+    {
+        var ui = new GameObject("UI");
+        var document = ui.AddComponent<UIDocument>();
+        document.panelSettings = PanelSettingsAsset();
+        var journal = ui.AddComponent<JournalView>();
+        Set(journal, so =>
+        {
+            so.FindProperty("dispatch").objectReferenceValue = dispatch;
+            so.FindProperty("styleSheet").objectReferenceValue = AssetDatabase.LoadAssetAtPath<StyleSheet>(JournalStylePath);
+        });
+    }
+
+    static PanelSettings PanelSettingsAsset()
+    {
+        var settings = AssetDatabase.LoadAssetAtPath<PanelSettings>(PanelSettingsPath);
+        if (settings != null) return settings;
+        settings = ScriptableObject.CreateInstance<PanelSettings>();
+        settings.themeStyleSheet = AssetDatabase.LoadAssetAtPath<ThemeStyleSheet>(ThemePath);
+        settings.scaleMode = PanelScaleMode.ScaleWithScreenSize;
+        settings.referenceResolution = new Vector2Int(1920, 1080);
+        settings.screenMatchMode = PanelScreenMatchMode.MatchWidthOrHeight;
+        settings.match = 0.5f;
+        AssetDatabase.CreateAsset(settings, PanelSettingsPath);
+        return settings;
     }
 
     static void Set(Object target, System.Action<SerializedObject> edit)

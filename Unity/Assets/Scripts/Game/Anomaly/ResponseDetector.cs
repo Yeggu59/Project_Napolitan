@@ -59,8 +59,8 @@ namespace Napolitan.Game.Anomaly
         void Update()
         {
             Gazing = IsGazing();
-            // 커서가 풀려 조작을 멈춘 동안(일시정지)과 사망 연출 중엔 시간을 재지 않음
-            if (!running || dispatch.Dying || !player.HasControl) return;
+            // Esc 일시정지와 사망 연출 중엔 시간을 재지 않음. 저널을 여는 동안은 계속 흐름
+            if (!running || dispatch.Dying || player.Paused) return;
 
             var action = check.Tick(Time.deltaTime, Distance(), Gazing, Facing(), eyes.Closed);
             if (action == null) return;

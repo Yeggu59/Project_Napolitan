@@ -10,10 +10,18 @@ namespace Napolitan.Game.Interaction
         Inspector inspector;
         GUIStyle promptStyle;
 
-        void Awake() => inspector = GetComponent<Inspector>();
+        Napolitan.Game.Player.FirstPersonController controller;
+
+        void Awake()
+        {
+            inspector = GetComponent<Inspector>();
+            controller = GetComponent<Napolitan.Game.Player.FirstPersonController>();
+        }
 
         void OnGUI()
         {
+            if (controller != null && controller.InputLocked) return;
+
             var center = new Vector2(Screen.width / 2f, Screen.height / 2f);
             GUI.DrawTexture(new Rect(center.x - 2f, center.y - 2f, 4f, 4f), Texture2D.whiteTexture);
 

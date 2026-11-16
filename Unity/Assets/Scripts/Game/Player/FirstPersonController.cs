@@ -1,6 +1,7 @@
 // 1인칭 이동. 새 Input System, 액션은 코드에서 정의
 // WASD 이동 · 마우스 시점 · Shift 달리기 · Esc 커서 해제 · 좌클릭/포커스 복귀 시 재잠금
 
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -23,12 +24,19 @@ namespace Napolitan.Game.Player
         float pitch;
         float verticalVelocity;
         GUIStyle resumeStyle;
+        readonly HashSet<object> inputLocks = new HashSet<object>();
 
-        /// <summary>태블릿·저널·사망 연출 동안 이동/시점 입력 차단 (커서 자동 재잠금도 안 함)</summary>
-        public bool InputLocked { get; set; }
+        /// <summary>태블릿·저널·사망 연출 동안 이동/시점 입력 차단 (커서 자동 재잠금도 안 함). 잠근 쪽이 여럿이어도 각자 풀 때까지 유지</summary>
+        public bool InputLocked => inputLocks.Count > 0;
+
+        public void LockInput(object owner) => inputLocks.Add(owner);
+        public void UnlockInput(object owner) => inputLocks.Remove(owner);
 
         /// <summary>지금 플레이어가 조작 중인지 (입력 차단 없음 + 커서 잠김)</summary>
         public bool HasControl => !InputLocked && Cursor.lockState == CursorLockMode.Locked;
+
+        /// <summary>Esc로 커서를 풀어 일시정지한 상태 (저널·사망 연출 같은 입력 차단과 구분 — 이때만 현장 시간이 멈춤)</summary>
+        public bool Paused => !InputLocked && Cursor.lockState != CursorLockMode.Locked;
 
         /// <summary>이상현상 행동 판정용 (다가감·뒷걸음질 감지)</summary>
         public Vector3 Velocity => body.velocity;
@@ -137,7 +145,7 @@ namespace Napolitan.Game.Player
             body.Move((horizontal + Vector3.up * verticalVelocity) * Time.deltaTime);
         }
 
-        static void SetCursorLocked(bool locked)
+        public static void SetCursorLocked(bool locked)
         {
             Cursor.lockState = locked ? CursorLockMode.Locked : CursorLockMode.None;
             Cursor.visible = !locked;

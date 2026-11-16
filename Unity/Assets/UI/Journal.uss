@@ -1,0 +1,188 @@
+/* 현장 관측 일지 — 관공서 문서 톤 (서담시). 손그림·귀여운 UI 금지 */
+
+.journal-hint {
+    position: absolute;
+    left: 24px;
+    bottom: 20px;
+    padding: 4px 10px;
+    font-size: 15px;
+    color: rgb(220, 220, 220);
+    background-color: rgba(0, 0, 0, 0.45);
+}
+
+.journal-root {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+.journal-paper {
+    width: 82%;
+    height: 86%;
+    padding: 28px 40px 18px 40px;
+    background-color: rgb(233, 230, 221);
+    border-width: 1px;
+    border-color: rgb(140, 138, 132);
+    color: rgb(31, 32, 35);
+}
+
+.journal-header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding-bottom: 10px;
+    margin-bottom: 8px;
+    border-bottom-width: 3px;
+    border-bottom-color: rgb(31, 32, 35);
+}
+
+.journal-org {
+    font-size: 15px;
+    color: rgb(74, 74, 74);
+    margin-bottom: 2px;
+}
+
+.journal-title {
+    font-size: 32px;
+    -unity-font-style: bold;
+    letter-spacing: 8px;
+}
+
+.journal-meta-box {
+    align-items: flex-end;
+}
+
+.journal-meta {
+    font-size: 14px;
+    color: rgb(59, 59, 59);
+}
+
+.journal-notice {
+    font-size: 13px;
+    color: rgb(122, 30, 30);
+    margin-bottom: 14px;
+}
+
+.journal-body {
+    flex-direction: row;
+    flex-grow: 1;
+    min-height: 0;
+}
+
+.journal-col {
+    flex-basis: 0;
+    min-height: 0;
+}
+
+.journal-col--entries {
+    flex-grow: 1.4;
+    margin-right: 28px;
+}
+
+.journal-col--keywords {
+    flex-grow: 1;
+}
+
+.journal-scroll {
+    flex-grow: 1;
+}
+
+.journal-section {
+    font-size: 16px;
+    -unity-font-style: bold;
+    padding: 5px 10px;
+    margin-bottom: 6px;
+    background-color: rgb(214, 210, 198);
+    border-left-width: 4px;
+    border-left-color: rgb(35, 50, 74);
+}
+
+.journal-empty {
+    font-size: 14px;
+    color: rgb(120, 120, 120);
+    padding: 6px 4px;
+}
+
+.entry {
+    flex-direction: row;
+    align-items: flex-start;
+    padding: 7px 4px;
+    border-bottom-width: 1px;
+    border-bottom-color: rgb(203, 199, 187);
+}
+
+.entry-time {
+    width: 86px;
+    flex-shrink: 0;
+    font-size: 14px;
+    color: rgb(74, 74, 74);
+}
+
+.entry-kind {
+    width: 44px;
+    height: 22px;
+    flex-shrink: 0;
+    margin-right: 10px;
+    font-size: 12px;
+    -unity-text-align: middle-center;
+    color: rgb(233, 230, 221);
+    background-color: rgb(79, 88, 102);
+}
+
+.entry-kind--field {
+    background-color: rgb(122, 30, 30);
+}
+
+.entry-text {
+    flex-grow: 1;
+    flex-shrink: 1;
+    white-space: normal;
+    font-size: 15px;
+}
+
+.kw-group {
+    margin-bottom: 12px;
+}
+
+.kw-group-title {
+    font-size: 14px;
+    -unity-font-style: bold;
+    color: rgb(59, 59, 59);
+    margin: 6px 0 2px 2px;
+}
+
+.kw-row {
+    flex-direction: row;
+    align-items: center;
+    padding: 4px 4px 4px 8px;
+    border-bottom-width: 1px;
+    border-bottom-color: rgb(203, 199, 187);
+}
+
+.kw-row--suspected {
+    background-color: rgb(235, 211, 207);
+}
+
+.kw-label {
+    flex-grow: 1;
+    flex-shrink: 1;
+    white-space: normal;
+    font-size: 15px;
+}
+
+.kw-check {
+    flex-shrink: 0;
+    margin-left: 8px;
+}
+
+.journal-footer {
+    font-size: 13px;
+    color: rgb(85, 85, 85);
+    margin-top: 10px;
+    -unity-text-align: middle-right;
+}

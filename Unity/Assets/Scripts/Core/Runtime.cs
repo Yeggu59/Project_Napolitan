@@ -118,6 +118,8 @@ namespace Napolitan.Core
         public IReadOnlyCollection<string> FoundClues => foundClues;
 
         public event Action<string> KeywordUnlocked;
+        /// <summary>새 단서를 처음 얻었을 때 (Clue)</summary>
+        public event Action<Clue> ClueAdded;
         public event Action<string, OutcomeResult> OutcomeApplied;
 
         /// <param name="anomalyIds">이번 파견에 등장하는 이상현상 (변형이 있어야 함)</param>
@@ -157,7 +159,9 @@ namespace Napolitan.Core
         public void AddClue(string clueId)
         {
             if (!foundClues.Add(clueId)) return;
-            if (cluesById.TryGetValue(clueId, out var clue)) Unlock(clue.RevealsKeywords);
+            if (!cluesById.TryGetValue(clueId, out var clue)) return;
+            ClueAdded?.Invoke(clue);
+            Unlock(clue.RevealsKeywords);
         }
 
         /// <summary>현장 행동 판정 + 결과를 플레이어 상태에 반영. 이상현상이 Active가 아니면 null</summary>

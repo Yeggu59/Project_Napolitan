@@ -25,7 +25,27 @@ namespace Napolitan.Game.Dispatch
         [SerializeField] Inspector inspector;
         [SerializeField] HarmPresenter harm;
 
+        [Tooltip("파견 시작 시 현장 시계 (저널 시각 표시용, 서담시 CCTV 타임스탬프 톤)")]
+        [SerializeField] string startClock = "02:10:00";
+
         public DispatchSession Session { get; private set; }
+        public Journal Journal { get; private set; }
+        public FirstPersonController Player => player;
+        public string SiteName { get; private set; }
+        public Rank Rank => rank;
+
+        float startTime;
+
+        /// <summary>파견 시작 후 초</summary>
+        public float Elapsed => Time.time - startTime;
+
+        /// <summary>파견 시작 후 t초의 현장 시각 "HH:mm:ss"</summary>
+        public string FormatClock(float t)
+        {
+            var start = System.TimeSpan.TryParse(startClock, out var s) ? s : System.TimeSpan.Zero;
+            var at = start + System.TimeSpan.FromSeconds(t);
+            return $"{(int)at.TotalHours % 24:00}:{at.Minutes:00}:{at.Seconds:00}";
+        }
 
         /// <summary>사망 연출 중 (행동 판정 정지)</summary>
         public bool Dying { get; private set; }
@@ -39,6 +59,9 @@ namespace Napolitan.Game.Dispatch
             var config = RankConfigs.All.First(c => c.Rank == rank);
             int actualSeed = seed != 0 ? seed : System.Environment.TickCount;
             Session = new DispatchSession(site, config, anomalyIds, actualSeed);
+            SiteName = site.Name;
+            startTime = Time.time;
+            Journal = new Journal(Session, () => Elapsed);
             Session.KeywordUnlocked += id => Debug.Log($"[해금] {id}");
             Debug.Log($"[파견] {site.Name} / {rank} / 시드 {actualSeed} / " +
                       string.Join(", ", Session.Anomalies.Values.Select(r => $"{r.Def.Id}:{r.Variant.Id}")));
@@ -75,10 +98,10 @@ namespace Napolitan.Game.Dispatch
         IEnumerator DieAndRespawn(List<string> marksAtDeath)
         {
             Dying = true;
-            player.InputLocked = true;
+            player.LockInput(this);
             yield return harm.PlayDeath(marksAtDeath.Count > 0,
                 () => player.Teleport(vanSpawn.position, vanSpawn.eulerAngles.y));
-            player.InputLocked = false;
+            player.UnlockInput(this);
             Dying = false;
 
             // 목숨 소진 시 강제 복귀는 정산 흐름(11/11)에서 연결
